@@ -12,6 +12,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'USER': 'logan',
         'PASSWORD': '1234',
-        'NAME': os.path.join(BASE_DIR, 'sarvahar'),
+#       'NAME': os.path.join(BASE_DIR, 'sarvahar'),
+        'NAME': 'sarvahar',
     }
 }
