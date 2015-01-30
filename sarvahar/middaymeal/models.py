@@ -1,6 +1,12 @@
 from django.db import models
 from datetime import timedelta
 
+'''
+   Models are created in decreasing order of their 
+   number of students.Each model points(foreign key)
+   to its immediate super Model
+'''
+
 class District(models.Model):
 
   name = models.CharField(max_length=100 , unique = True)
@@ -31,6 +37,7 @@ class Aanganwadi(models.Model):
 class Child(models.Model):
   '''
         A child model to store information about unique child
+        and the aanganwadi he/she belongs to
   '''
 
   name = models.CharField(max_length=250)
