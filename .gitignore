@@ -1,5 +1,6 @@
 
 *.pyc
 sarvahar/sarvahar/settings/settings_ayu.py
+sarvahar/sarvahar/settings/settings_harshit.py
 
 sarvahar/.env
