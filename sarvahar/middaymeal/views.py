@@ -32,12 +32,12 @@ def EditChild(request, child_id=None):
     if request.POST:
         childform = ChildEntryForm(request.POST)
         childconditionform = ChildConditionForm(request.POST)
-        if childform.is_valid() and childconditionform.is_vaild():
+        if childform.is_valid() and childconditionform.is_valid():
             a = childform.save()
             b = childconditionform.save(commit=False)
             b.child = a
             b.save()
-            return HttpResponseRedirect(reverse('middaymeal:EditChild'))
+            return HttpResponseRedirect(reverse('middaymeal.EditChild'))
 
     return render_to_response('middaymeal/child.html',{
         'childform': childform,

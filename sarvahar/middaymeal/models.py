@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, AbstractBaseUser, BaseUserManager
 from django.db import models
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 '''
    Models are created in decreasing order of their 
@@ -35,11 +35,18 @@ class District(models.Model):
     name = models.CharField(max_length=100 , unique = True)
     state = models.CharField(max_length=100)
 
+    def __unicode__(self):
+       return str(self.name)
+
 class Block(models.Model):
 
     name = models.CharField(max_length=100)
     district = models.ForeignKey(District)
-  
+
+    def __unicode__(self):
+       return str(self.name)
+
+ 
 class Panchayat(models.Model):
     '''
         Panchayat data and the block it lies
@@ -47,6 +54,9 @@ class Panchayat(models.Model):
     '''
     name = models.CharField(max_length=100)
     block = models.ForeignKey(Block)
+
+    def __unicode__(self):
+       return str(self.name)
 
 class Village(models.Model):
     '''
@@ -56,6 +66,9 @@ class Village(models.Model):
     name = models.CharField(max_length=100)
     panchayat = models.ForeignKey(Panchayat)
 
+    def __unicode__(self):
+       return str(self.name)
+
 class Aanganwadi(models.Model):
     '''
         Data on unique aaganwadi and the 
@@ -63,6 +76,9 @@ class Aanganwadi(models.Model):
     '''
     name = models.CharField(max_length=100)
     village = models.ForeignKey(Village)
+
+    def __unicode__(self):
+       return str(self.name)
 
 class Child(models.Model):
     '''
@@ -111,83 +127,7 @@ class ChildConditions(models.Model):
             self.body_mass_index = self.weight/pow(self.height, 2)
         except Exception as e:
             pass
-        self.age = timedelta(self.date_of_entry.date-self.child.date_of_birth)
+        self.date_of_entry = datetime.now()
+        age_diff = self.date_of_entry.date()-self.child.date_of_birth
+        self.age = str(age_diff.days/float(365))
         super(ChildConditions, self).save(**kwargs)
-
-"""
-class MyUserManager(BaseUserManager):
-    '''
-        Credits: http://stackoverflow.com/a/12648124/2080890
-    '''
-    def create_user(self, email, date_of_birth, password=None):
-        '''
-        Creates and saves a User with the given email, date of
-        birth and password.
-        '''
-        if not email:
-            raise ValueError('Users must have an email address')
-
-        user = self.model(
-            email=MyUserManager.normalize_email(email),
-            date_of_birth=date_of_birth,
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, date_of_birth, password):
-        '''
-        Creates and saves a superuser with the given email, date of
-        birth and password.
-        '''
-        u = self.create_user(username,
-                        password=password,
-                        date_of_birth=date_of_birth
-                    )
-        u.is_admin = True
-        u.save(using=self._db)
-        return u
-
-class UserProfile(AbstractBaseUser):
-    email = models.CharField(
-                        verbose_name='username',
-                        max_length=255,
-                        unique=True,
-                    )
-    is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
-    category = models.CharField(max_length=100,choices=USER_CATEGORY )
-
-    objects = MyUserManager()
-
-    USERNAME_FIELD = 'email'
-
-    def get_full_name(self):
-        # The user is identified by their email address
-        return self.email
-
-    def get_short_name(self):
-        # The user is identified by their email address
-        return self.email
-
-    def __unicode__(self):
-        return self.email
-
-    def has_perm(self, perm, obj=None):
-        "Does the user have a specific permission?"
-        # Simplest possible answer: Yes, always
-        return True
-
-    def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
-        # Simplest possible answer: Yes, always
-        return True
-
-    @property
-    def is_staff(self):
-        "Is the user a member of staff?"
-        # Simplest possible answer: All admins are staff
-        return self.is_admin
-"""
-
