@@ -77,3 +77,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
