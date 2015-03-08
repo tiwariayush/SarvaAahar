@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User, AbstractBaseUser, BaseUserManager
 from django.db import models
 from datetime import timedelta, datetime
+from rest_framework import serializers
 
 '''
    Models are created in decreasing order of their 

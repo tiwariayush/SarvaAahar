@@ -2,8 +2,10 @@ from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate, login
+
 from models import *
 from forms import *
 
@@ -75,3 +77,47 @@ def get_locations(aanganwadi):
 
   return locations
 '''
+
+def create_user(request):
+
+    if request.POST:
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            name = form.cleaned_data['name']
+            password = form.cleaned_data['password']
+            user, created = User.objects.get_or_create(username=name, password=password)
+            user.save()
+            if not created:
+                messages.error(request, 'User already exists with same name ')
+            user_profile.user = user
+            user_profile.save()
+            return HttpResponse('<html><body>Success</body></html>')
+    else:
+        form = SignUpForm()
+    return render_to_response('middaymeal/signup.html', {'form': form}, context_instance=RequestContext(request))
+        
+
+def login_user(request):
+
+    form = LoginForm(request.POST or None)
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+        user_profile = UserProfile.objects.filter(user=user)
+        category = user_profile.category
+
+def category_view(request, category, cat_id):
+        if category=='super':
+            children = Child.objects.all()
+            children_data = []
+            for child in children_data:
+                child_condition = ChildConditions.objects.filter(child=child)
+                child_info = {'child': child,
+                              'child_condition': child_condition }
+                children_data.append(child_info)
+            return render_to_response('middaymeal/children.html', {'children_info'=children_info}, context_instance=RequestContext(request))
