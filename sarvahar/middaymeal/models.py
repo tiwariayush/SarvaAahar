@@ -15,7 +15,7 @@ USER_CATEGORY = (
         ('block', 'block'),
         ('panchayat', 'panchayat'),
         ('village', 'village'),
-        ('aaganwadi', 'aaganwadi'),
+        ('aanganwadi', 'aanganwadi'),
 )
 
 
@@ -25,6 +25,7 @@ class UserProfile(models.Model):
     '''
     user = models.OneToOneField(User)
     category = models.CharField(max_length=100, choices=USER_CATEGORY)
+    category_data = models.TextField(null=True)
 
     def __unicode__(self):
         return str(self.user.username)
@@ -34,7 +35,7 @@ class District(models.Model):
         Name of district in specific state
     '''
     name = models.CharField(max_length=100 , unique = True)
-    state = models.CharField(max_length=100)
+    state = models.CharField(max_length=100, null=True)
 
     def __unicode__(self):
        return str(self.name)
@@ -72,7 +73,7 @@ class Village(models.Model):
 
 class Aanganwadi(models.Model):
     '''
-        Data on unique aaganwadi and the 
+        Data on unique aanganwadi and the 
         village it lies in 
     '''
     name = models.CharField(max_length=100)
@@ -103,21 +104,14 @@ class ChildConditions(models.Model):
     '''
     
     child = models.ForeignKey(Child)
-    weight = models.CharField(max_length=50)
-    height = models.CharField(max_length=50)
-    age = models.CharField(max_length=50)
-    body_mass_index = models.CharField(max_length=50)
+    weight = models.CharField(max_length=50, null=True)
+    height = models.CharField(max_length=50, null=True)
+    age = models.CharField(max_length=50, null=True)
+    body_mass_index = models.CharField(max_length=50, null=True)
     date_of_entry = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-
         return self.body_mass_index
-        '''return  ('Child name:' %s, 
-                     'BMI:' %s, 
-                     'Date of entry:'%s),
-                     %(self.child, 
-                    self.body_mass_index, 
-                    self.date_of_entry)'''
 
     def save(self, **kwargs):
         '''
