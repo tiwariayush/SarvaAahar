@@ -1,0 +1,12 @@
+<html>
+    <head>
+        <title>Villages</title>
+    </head>
+
+    <body>
+        {% for village in villages %}
+            <a href='middaymeal/aanganwadis/{{village.id}}'>{{village.name}}</a>
+        {% endfor %}
+    </body>
+
+</html>

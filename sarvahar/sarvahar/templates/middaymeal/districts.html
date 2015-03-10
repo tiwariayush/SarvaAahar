@@ -1,0 +1,12 @@
+<html>
+    <head>
+        <title>Districts</title>
+    </head>
+
+    <body>
+        {% for district in districts %}
+            <a href='middaymeal/blocks/{{district.id}}'>{{district.name}}</a>
+        {% endfor %}
+    </body>
+
+</html>

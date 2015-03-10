@@ -8,6 +8,8 @@ from django.contrib.auth import authenticate, login
 import json
 
 #TODO: Use child details model as history(to show , show the newest data entry)
+# Logout views on each page
+
 
 from models import *
 from forms import *
@@ -51,7 +53,7 @@ def edit_child(request, child_id=None):
 
             return HttpResponseRedirect(reverse('middaymeal.EditChild'))
 
-    return render_to_response('middaymeal/child.html',{
+    return render_to_response('middaymeal/child_entry.html',{
         'childform': childform,
         'childconditionform': childconditionform,
 }, context_instance=RequestContext(request))
@@ -67,11 +69,11 @@ def create_user(request):
             user_profile = form.save(commit=False)
             name = form.cleaned_data['name']
             password = form.cleaned_data['password']
-            user, created = User.objects.get_or_create(username=name, password=password)
+            user = User.objects.create_user(username=name, password=password)
             user.save()
 
-            if not created:
-                messages.error(request, 'User already exists with same name ')
+#            if not created:
+#                messages.error(request, 'User already exists with same name ')
 
             category_form_data = {'super': 'super',
                              'district': form.cleaned_data['district'],
@@ -101,7 +103,7 @@ def login_user(request):
 
     if form.is_valid():
 
-        username = form.cleaned_data['username']
+        username = form.cleaned_data['name']
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
 
@@ -110,31 +112,69 @@ def login_user(request):
             if user.is_active:
                 login(request, user)
 
-        user_profile = UserProfile.objects.filter(user=user)
-        category = user_profile.category
-        category_data = json.loads(user_profile.category_data)
-        category_name = category_data[str(category)]
+            user_profile = UserProfile.objects.filter(user=user)[0]
+            category = user_profile.category
+            category_data = json.loads(user_profile.category_data)
+            category_name = category_data[str(category)]
+            return HttpResponseRedirect('/middaymeal/details/%s/%s' %(category, category_name))
 
-        return HttpResponseRedirect('/middaymeal/details/%s/%s' %(category, category_name))
+        return HttpResponse('<html><head><body>Invaild username or password</body></head></html>')
+
+    return render_to_response('middaymeal/login.html', {'form': form}, context_instance=RequestContext(request))
 
 def view_category_details(request, category=None, category_name=None):
 
         if category=='super':
+            districts = Districts.objects.all()
+            return render_to_response('middaymeal/districts.html', {'districts': district}, context_instance=RequestContext(request))
 
-            children = Child.objects.all()
-            children_data = []
+        if category=='district':
+            district = Districts.objects.filter(pk=category_name)
+            blocks = Blocks.objects.filter(district=district)
+            return render_to_response('middaymeal/blocks.html', {'blocks': blocks}, context_instance=RequestContext(request))
 
-            for child in children_data:
-                child_condition = ChildConditions.objects.filter(child=child)
-                child_info = {'child': child,
-                              'child_condition': child_condition }
-                children_data.append(child_info)
+def view_districts(request):
 
-            return render_to_response('middaymeal/children.html', 
-                                      {'children_info'=children_info}, 
-                                      context_instance=RequestContext(request))
+    districts = Districts.objects.filter(state='Uttarakhand')
+    return render_to_response('middaymeal/districts.html', {'districts': districts}, context_instance=RequestContext(request))
 
-def view_aanganwadi_children(request, aanganwadi_name=None):
+def view_blocks(request, district_name=None):
+
+    if not district_name:
+        district = Districts.objetcs.get(pk=district_name)
+        blocks = Blocks.objects.filter(district=district)
+        return render_to_response('middaymeal/blocks.html', {'blocks': blocks}, context_instance=RequestContext(request))
+
+    return HttpResponse('<html><head><body>No blocks in this district</body></head></html>')
+
+def view_panchayats(request, block_name=None):
+
+    if not block_name:
+        block = Blocks.objetcs.get(pk=block_name)
+        panchayats = Panchayats.objects.filter(block=block)
+        return render_to_response('middaymeal/panchyats.html', {'panchayat': panchayat}, context_instance=RequestContext(request))
+
+    return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
+
+def view_villages(request, panchayat_name=None):
+
+    if not panchayat_name:
+        panchayat = Panchayats.objetcs.get(pk=panchayat_name)
+        villages = Villages.objects.filter(panchayat=panchayat)
+        return render_to_response('middaymeal/villages.html', {'villages': villages}, context_instance=RequestContext(request))
+
+    return HttpResponse('<html><head><body>No villages in this panchayat</body></head></html>')
+
+def view_aanganwadis(request, village_name=None):
+
+    if not village_name:
+        village = Villages.objetcs.get(pk=village_name)
+        aanganwadis = Aanganwadis.objects.filter(village=village)
+        return render_to_response('middaymeal/aanganwadis.html', {'aanganwadis': aanganwadis}, context_instance=RequestContext(request))
+
+    return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
+
+def view_children(request, aanganwadi_name=None):
 
         if not aanganwadi_name:
 
@@ -163,4 +203,4 @@ def view_aanganwadi_children(request, aanganwadi_name=None):
 
                 children_info.append(child_info)
 
-            return render_to_response('child_details.html', {'children_info': children_info})
+            return render_to_response('middaymeal/child_details.html', {'children_info': children_info}, context_instance=RequestContext(request))

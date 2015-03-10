@@ -19,7 +19,7 @@ class SignUpForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        exclude = ('user',)
+        exclude = ('user', 'category_data',)
 
     def clean_confirm_password(self):
         password = self.cleaned_data.get('password', '')

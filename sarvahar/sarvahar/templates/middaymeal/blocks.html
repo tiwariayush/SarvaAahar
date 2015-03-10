@@ -1,0 +1,12 @@
+<html>
+    <head>
+        <title>Blocks</title>
+    </head>
+
+    <body>
+        {% for block in blocks %}
+            <a href='middaymeal/panchayats/{{block.id}}'>{{block.name}}</a>
+        {% endfor %}
+    </body>
+
+</html>
