@@ -4,7 +4,7 @@ from middaymeal import views
 urlpatterns = patterns('',
     url(r'^$',                                              views.login_user,           name="login_user"),
     url(r'signup',                                          views.create_user,          name="create_user"),
-    url(r'edit/(?P<child_id>\d+)',                          views.edit_child,           name="edit_child"),
+    url(r'edit/(?P<child_id>\w+)',                          views.edit_child,           name="edit_child"),
     url(r'details/(?P<category>\w+)/(?P<category_name>\w+)',views.view_category_details,name="view_category_details"),
     url(r'districts/',                                      views.view_districts,       name="view_districts"),
     url(r'blocks/(?P<district_name>\w+)',                   views.view_blocks,          name="view_blocks"),

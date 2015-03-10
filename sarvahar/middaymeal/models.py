@@ -119,7 +119,8 @@ class ChildConditions(models.Model):
             during time of entry
         '''
         try:
-            self.body_mass_index = self.weight/pow(self.height, 2)
+            bmi = int(self.weight)/pow((int(self.height)/float(100)), 2)
+            self.body_mass_index = str(bmi)
         except Exception as e:
             pass
         self.date_of_entry = datetime.now()
