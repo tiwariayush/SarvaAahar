@@ -9,7 +9,7 @@ import json
 
 #TODO: Use child details model as history(to show , show the newest data entry)
 # Logout views on each page
-
+# Login reqired decorator
 
 from models import *
 from forms import *
@@ -125,65 +125,72 @@ def login_user(request):
 def view_category_details(request, category=None, category_name=None):
 
         if category=='super':
-            districts = Districts.objects.all()
-            return render_to_response('middaymeal/districts.html', {'districts': district}, context_instance=RequestContext(request))
-
+            
+            return HttpResponseRedirect('/middaymeal/districts')
         if category=='district':
-            district = Districts.objects.filter(pk=category_name)
-            blocks = Blocks.objects.filter(district=district)
-            return render_to_response('middaymeal/blocks.html', {'blocks': blocks}, context_instance=RequestContext(request))
+            return HttpResponseRedirect('/middaymeal/blocks/%s' %category_name)
+        if category=='block':
+            return HttpResponseRedirect('/middaymeal/panchayats/%s' %category_name)
+        if category=='panchayat':
+            return HttpResponseRedirect('/middaymeal/villages/%s' %category_name)
+        if category=='village':
+            return HttpResponseRedirect('/middaymeal/aanganwadis/%s' %category_name)
+        if category=='aanganwadi':
+            return HttpResponseRedirect('/middaymeal/children/%s' %category_name)
+
+        return HttpResponse('<html><head><body>No category defined for user</body></head></html>')
 
 def view_districts(request):
 
-    districts = Districts.objects.filter(state='Uttarakhand')
+    districts = District.objects.filter(state='Uttarakhand')
     return render_to_response('middaymeal/districts.html', {'districts': districts}, context_instance=RequestContext(request))
 
 def view_blocks(request, district_name=None):
 
-    if not district_name:
-        district = Districts.objetcs.get(pk=district_name)
-        blocks = Blocks.objects.filter(district=district)
+    if district_name:
+        district = District.objects.get(pk=district_name)
+        blocks = Block.objects.filter(district=district)
         return render_to_response('middaymeal/blocks.html', {'blocks': blocks}, context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No blocks in this district</body></head></html>')
 
 def view_panchayats(request, block_name=None):
 
-    if not block_name:
-        block = Blocks.objetcs.get(pk=block_name)
-        panchayats = Panchayats.objects.filter(block=block)
-        return render_to_response('middaymeal/panchyats.html', {'panchayat': panchayat}, context_instance=RequestContext(request))
+    if block_name:
+        block = Block.objects.get(pk=block_name)
+        panchayats = Panchayat.objects.filter(block=block)
+        return render_to_response('middaymeal/panchayats.html', {'panchayats': panchayats}, context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
 
 def view_villages(request, panchayat_name=None):
 
-    if not panchayat_name:
-        panchayat = Panchayats.objetcs.get(pk=panchayat_name)
-        villages = Villages.objects.filter(panchayat=panchayat)
+    if panchayat_name:
+        panchayat = Panchayat.objects.get(pk=panchayat_name)
+        villages = Village.objects.filter(panchayat=panchayat)
         return render_to_response('middaymeal/villages.html', {'villages': villages}, context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No villages in this panchayat</body></head></html>')
 
 def view_aanganwadis(request, village_name=None):
 
-    if not village_name:
-        village = Villages.objetcs.get(pk=village_name)
-        aanganwadis = Aanganwadis.objects.filter(village=village)
+    if village_name:
+        village = Village.objects.get(pk=village_name)
+        aanganwadis = Aanganwadi.objects.filter(village=village)
         return render_to_response('middaymeal/aanganwadis.html', {'aanganwadis': aanganwadis}, context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
 
 def view_children(request, aanganwadi_name=None):
 
-        if not aanganwadi_name:
+        if aanganwadi_name:
 
-            aanganwadi = Aanganwadi.objetcs.filter(name=str(aanganwadi_name))[0]
+            aanganwadi = Aanganwadi.objects.filter(name=str(aanganwadi_name))[0]
             children = Child.objects.filter(aanganwadi=aanganwadi)
             children_info = []
 
             for child in children:
-                child_details = ChildConditions.objetcs.filter(child=child)
+                child_details = ChildConditions.objects.filter(child=child)
                 child_info = {}
                 child_info['child']={
                                      'name': child.name,
