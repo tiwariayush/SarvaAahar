@@ -7,7 +7,7 @@
     <h1> Children Information </h1>
     <ul>
     {% for child in children_info %}
-        <li><a href='/middaymeal/child_detail/{{child.child.id}}'>{{child.child}}</a> -- {{child.conditions.0}}
+        <li><a href='/middaymeal/child_detail/{{child.child.id}}'>{{child.child}}</a> -- {{child.conditions.0}} <a href='/middaymeal/edit/{{child.child.id}}'>Edit</a>
     {% endfor %}
     </ul>
     <p>

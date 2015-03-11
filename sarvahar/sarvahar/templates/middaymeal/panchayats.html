@@ -4,6 +4,7 @@
     </head>
 
     <body>
+        <h2>Panchayats</h2>
         {% for panchayat in panchayats %}
             <a href='/middaymeal/villages/{{panchayat.id}}'>{{panchayat.name}}</a>
         {% endfor %}

@@ -28,13 +28,15 @@ def edit_child(request, child_id=None):
                           'aanganwadi': child.aanganwadi}
             childform = ChildEntryForm(initial=child_data)
 
-            child_condition = ChildConditions.objects.get(child=child)
+            child_condition = ChildConditions.objects.filter(child=child)[0]
             child_condition_data  = {'weight': child_condition.weight,
                                     'height': child_condition.height,
                                     'age': child_condition.age,
                                     'body_mass_index': child_condition.body_mass_index,
                                     'date_of_entry': child_condition.date_of_entry}
             childconditionform = ChildConditionForm(initial=child_condition_data)
+
+            child = Child.objects.get(pk=child_id)
 
         except ObjectDoesNotExist:
             messages.error(request, 'This child entry is not present')
@@ -48,9 +50,10 @@ def edit_child(request, child_id=None):
         childconditionform = ChildConditionForm(request.POST)
 
         if childform.is_valid() and childconditionform.is_valid():
-            a = childform.save()
+            if not child:
+                child = childform.save()
             b = childconditionform.save(commit=False)
-            b.child = a
+            b.child = child
             b.save()
             aanganwadi_name = request.POST['aanganwadi']
             return HttpResponseRedirect('/middaymeal/children/%s' %aanganwadi_name)
@@ -88,8 +91,8 @@ def create_user(request):
             user_profile.category_data = json.dumps(category_form_data)
             user_profile.user = user
             user_profile.save()
-
-            return HttpResponse('<html><body>Success</body></html>')
+            messages.success(request, 'Signup successful')
+            return HttpResponseRedirect('/middaymeal/')
 
     else:
         form = SignUpForm()
