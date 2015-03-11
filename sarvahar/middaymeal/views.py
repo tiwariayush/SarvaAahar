@@ -120,12 +120,13 @@ def login_user(request):
 
         return HttpResponse('<html><head><body>Invaild username or password</body></head></html>')
 
-    return render_to_response('middaymeal/login.html', {'form': form}, context_instance=RequestContext(request))
+    return render_to_response('middaymeal/login.html',
+                             {'form': form},
+                             context_instance=RequestContext(request))
 
 def view_category_details(request, category=None, category_name=None):
 
-        if category=='super':
-            
+        if category=='super':            
             return HttpResponseRedirect('/middaymeal/districts')
         if category=='district':
             return HttpResponseRedirect('/middaymeal/blocks/%s' %category_name)
@@ -143,41 +144,55 @@ def view_category_details(request, category=None, category_name=None):
 def view_districts(request):
 
     districts = District.objects.filter(state='Uttarakhand')
-    return render_to_response('middaymeal/districts.html', {'districts': districts}, context_instance=RequestContext(request))
+    return render_to_response('middaymeal/districts.html',
+                             {'districts': districts},
+                             context_instance=RequestContext(request))
 
 def view_blocks(request, district_name=None):
 
     if district_name:
+
         district = District.objects.get(pk=district_name)
         blocks = Block.objects.filter(district=district)
-        return render_to_response('middaymeal/blocks.html', {'blocks': blocks}, context_instance=RequestContext(request))
+        return render_to_response('middaymeal/blocks.html',
+                                 {'blocks': blocks},
+                                 context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No blocks in this district</body></head></html>')
 
 def view_panchayats(request, block_name=None):
 
     if block_name:
+
         block = Block.objects.get(pk=block_name)
         panchayats = Panchayat.objects.filter(block=block)
-        return render_to_response('middaymeal/panchayats.html', {'panchayats': panchayats}, context_instance=RequestContext(request))
+        return render_to_response('middaymeal/panchayats.html',
+                                 {'panchayats': panchayats},
+                                 context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
 
 def view_villages(request, panchayat_name=None):
 
     if panchayat_name:
+
         panchayat = Panchayat.objects.get(pk=panchayat_name)
         villages = Village.objects.filter(panchayat=panchayat)
-        return render_to_response('middaymeal/villages.html', {'villages': villages}, context_instance=RequestContext(request))
+        return render_to_response('middaymeal/villages.html', 
+                                 {'villages': villages}, 
+                                 context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No villages in this panchayat</body></head></html>')
 
 def view_aanganwadis(request, village_name=None):
 
     if village_name:
+
         village = Village.objects.get(pk=village_name)
         aanganwadis = Aanganwadi.objects.filter(village=village)
-        return render_to_response('middaymeal/aanganwadis.html', {'aanganwadis': aanganwadis}, context_instance=RequestContext(request))
+        return render_to_response('middaymeal/aanganwadis.html', 
+                                 {'aanganwadis': aanganwadis}, 
+                                 context_instance=RequestContext(request))
 
     return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
 
@@ -185,29 +200,39 @@ def view_children(request, aanganwadi_name=None):
 
         if aanganwadi_name:
 
-            aanganwadi = Aanganwadi.objects.filter(name=str(aanganwadi_name))[0]
-            children = Child.objects.filter(aanganwadi=aanganwadi)
-            children_info = []
+            try:
+                aanganwadi = Aanganwadi.objects.filter(pk=aanganwadi_name)[0]
+            except IndexError:
+                return HttpResponse('<html><head><body>No such aanganwadi exists</body></head></html>')
 
-            for child in children:
-                child_details = ChildConditions.objects.filter(child=child)
-                child_info = {}
-                child_info['child']={
-                                     'name': child.name,
-                                     'dob': child.date_of_birth
-                                    }
-                child_info['conditions']=[]
+            try:
+                children = Child.objects.filter(aanganwadi=aanganwadi)
+                children_info = []
 
-                for condition in child_details:
-                    cond = {
-                            'weight': condiion.weight,
-                            'height': condition.height,
-                            'age': condition.age,
-                            'bmi': condition.body_mass_index,
-                            'doe': condition.date_of_entry
-                            }
-                    child_info['conditions'].append(cond)
+                for child in children:
+                    child_details = ChildConditions.objects.filter(child=child)
+                    child_info = {}
+                    child_info['child']={
+                                         'name': child.name,
+                                         'dob': child.date_of_birth
+                                        }
+                    child_info['conditions']=[]
 
-                children_info.append(child_info)
+                    for condition in child_details:
+                        cond = {
+                                'weight': condition.weight,
+                                'height': condition.height,
+                                'age': condition.age,
+                                'bmi': condition.body_mass_index,
+                                'doe': condition.date_of_entry
+                                }
+                        child_info['conditions'].append(cond)
 
-            return render_to_response('middaymeal/child_details.html', {'children_info': children_info}, context_instance=RequestContext(request))
+                    children_info.append(child_info)
+
+            except ObjectDoesNotExist:
+                return HttpResponse('<html><head><body>No children in this aanganwadi</body></head></html>')
+
+            return render_to_response('middaymeal/child_details.html', 
+                                     {'children_info': children_info}, 
+                                     context_instance=RequestContext(request))
