@@ -4,7 +4,14 @@
     </head>
 
 <body>
-{{children_info}}
+    <h1> Children Information </h1>
+    <ul>
+    {% for child in children_info %}
+        <li><a href='/middaymeal/child_detail/{{child.child.id}}'>{{child.child}}</a> -- {{child.conditions.0}}
+    {% endfor %}
+    </ul>
+    <p>
+    <a href='/middaymeal/logout'>Logout</a>
 </body>
 
 </html>

@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>Child details</title>
+    </head>
+
+<body>
+
+    <h1> {{child_info.child.name}}'s Records</h1>
+    <ul>
+        {% for detail in child_info.conditions %}
+            <li> {{ detail }}
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

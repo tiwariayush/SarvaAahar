@@ -13,4 +13,6 @@ urlpatterns = patterns('',
     url(r'villages/(?P<panchayat_name>\w+)',                views.view_villages,        name="view_villages"),
     url(r'aanganwadis/(?P<village_name>\w+)',               views.view_aanganwadis,     name="view_aanaganwadis"),
     url(r'children/(?P<aanganwadi_name>\w+)',               views.view_children,        name="view_children"),
+    url(r'child_detail/(?P<child_id>\w+)',                  views.view_child_details,   name="view_child_details"),
+    url(r'logout',                                          views.logout_user,          name="logout_user"),
 )

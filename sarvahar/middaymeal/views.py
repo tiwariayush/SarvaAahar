@@ -1,19 +1,22 @@
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 import json
 
-#TODO: Use child details model as history(to show , show the newest data entry)
-# Logout views on each page
-# Login reqired decorator
+#TODO: Logout views on each page
+# Create a header part and include in all pages
+
+login_url = '/middaymeal/'
 
 from models import *
 from forms import *
 
+@login_required(login_url=login_url)
 def edit_child(request, child_id=None):
 
     if child_id:
@@ -45,13 +48,12 @@ def edit_child(request, child_id=None):
         childconditionform = ChildConditionForm(request.POST)
 
         if childform.is_valid() and childconditionform.is_valid():
-
             a = childform.save()
             b = childconditionform.save(commit=False)
             b.child = a
             b.save()
-
-            return HttpResponseRedirect(reverse('middaymeal.EditChild'))
+            aanganwadi_name = request.POST['aanganwadi']
+            return HttpResponseRedirect('/middaymeal/children/%s' %aanganwadi_name)
 
     return render_to_response('middaymeal/child_entry.html',{
         'childform': childform,
@@ -95,7 +97,6 @@ def create_user(request):
     return render_to_response('middaymeal/signup.html', 
                               {'form': form}, 
                               context_instance=RequestContext(request))
-        
 
 def login_user(request):
 
@@ -112,6 +113,9 @@ def login_user(request):
             if user.is_active:
                 login(request, user)
 
+            if user.is_staff:
+                return HttpResponseRedirect('/middaymeal/districts')
+
             user_profile = UserProfile.objects.filter(user=user)[0]
             category = user_profile.category
             category_data = json.loads(user_profile.category_data)
@@ -124,6 +128,7 @@ def login_user(request):
                              {'form': form},
                              context_instance=RequestContext(request))
 
+@login_required(login_url=login_url)
 def view_category_details(request, category=None, category_name=None):
 
         if category=='super':            
@@ -141,6 +146,7 @@ def view_category_details(request, category=None, category_name=None):
 
         return HttpResponse('<html><head><body>No category defined for user</body></head></html>')
 
+@login_required(login_url=login_url)
 def view_districts(request):
 
     districts = District.objects.filter(state='Uttarakhand')
@@ -148,6 +154,7 @@ def view_districts(request):
                              {'districts': districts},
                              context_instance=RequestContext(request))
 
+@login_required(login_url=login_url)
 def view_blocks(request, district_name=None):
 
     if district_name:
@@ -160,6 +167,7 @@ def view_blocks(request, district_name=None):
 
     return HttpResponse('<html><head><body>No blocks in this district</body></head></html>')
 
+@login_required(login_url=login_url)
 def view_panchayats(request, block_name=None):
 
     if block_name:
@@ -172,6 +180,7 @@ def view_panchayats(request, block_name=None):
 
     return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
 
+@login_required(login_url=login_url)
 def view_villages(request, panchayat_name=None):
 
     if panchayat_name:
@@ -184,6 +193,7 @@ def view_villages(request, panchayat_name=None):
 
     return HttpResponse('<html><head><body>No villages in this panchayat</body></head></html>')
 
+@login_required(login_url=login_url)
 def view_aanganwadis(request, village_name=None):
 
     if village_name:
@@ -196,6 +206,7 @@ def view_aanganwadis(request, village_name=None):
 
     return HttpResponse('<html><head><body>No panchayat in this block</body></head></html>')
 
+@login_required(login_url=login_url)
 def view_children(request, aanganwadi_name=None):
 
         if aanganwadi_name:
@@ -213,6 +224,7 @@ def view_children(request, aanganwadi_name=None):
                     child_details = ChildConditions.objects.filter(child=child)
                     child_info = {}
                     child_info['child']={
+                                         'id': child.pk,
                                          'name': child.name,
                                          'dob': child.date_of_birth
                                         }
@@ -236,3 +248,37 @@ def view_children(request, aanganwadi_name=None):
             return render_to_response('middaymeal/child_details.html', 
                                      {'children_info': children_info}, 
                                      context_instance=RequestContext(request))
+
+@login_required(login_url=login_url)
+def view_child_details(request, child_id=None):
+
+    if child_id:
+        child = Child.objects.get(pk=child_id)
+        child_details = ChildConditions.objects.filter(child=child)
+
+        child_info = {}
+        child_info['child']={
+                             'id': child.pk,
+                             'name': child.name,
+                             'dob': child.date_of_birth
+                            }
+        child_info['conditions']=[]
+
+        for condition in child_details:
+            cond = {
+                    'weight': condition.weight,
+                    'height': condition.height,
+                    'age': condition.age,
+                    'bmi': condition.body_mass_index,
+                    'doe': condition.date_of_entry
+                    }
+            child_info['conditions'].append(cond)
+
+        return render_to_response('middaymeal/child_track.html',
+                                  {'child_info': child_info},
+                                  context_instance=RequestContext(request))
+
+@login_required(login_url=login_url)
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect('/middaymeal/')

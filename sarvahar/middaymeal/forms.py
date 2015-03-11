@@ -37,4 +37,4 @@ class ChildConditionForm(forms.ModelForm):
 
     class Meta:
         model = ChildConditions
-        exclude = ('child',)
+        exclude = ('child', 'age', 'body_mass_index')
