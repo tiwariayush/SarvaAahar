@@ -95,6 +95,15 @@ class Child(models.Model):
     def __unicode__(self):
         return self.name
 
+    def as_dict(self):
+    	child_info = {
+                      'id': self.pk,
+                      'name': self.name,
+                      'dob': self.date_of_birth
+                     }
+        return child_info
+             
+
 class ChildConditions(models.Model):
     '''
         Stores conditions and its entry date, has a foreign
@@ -127,3 +136,14 @@ class ChildConditions(models.Model):
         age_diff = self.date_of_entry.date()-self.child.date_of_birth
         self.age = str(age_diff.days/float(365))
         super(ChildConditions, self).save(**kwargs)
+
+    def as_dict(self):
+    	child_condition = {
+                           'weight': self.weight,
+                           'height': self.height,
+                           'age': self.age,
+                           'bmi': self.body_mass_index,
+                           'doe': self.date_of_entry
+                          }
+    	return child_condition
+  

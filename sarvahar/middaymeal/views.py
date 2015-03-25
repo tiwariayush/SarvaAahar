@@ -226,22 +226,12 @@ def view_children(request, aanganwadi_name=None):
                 for child in children:
                     child_details = ChildConditions.objects.filter(child=child)
                     child_info = {}
-                    child_info['child']={
-                                         'id': child.pk,
-                                         'name': child.name,
-                                         'dob': child.date_of_birth
-                                        }
+                    child_info['child']= child.as_dict()
                     child_info['conditions']=[]
 
                     for condition in child_details:
-                        cond = {
-                                'weight': condition.weight,
-                                'height': condition.height,
-                                'age': condition.age,
-                                'bmi': condition.body_mass_index,
-                                'doe': condition.date_of_entry
-                                }
-                        child_info['conditions'].append(cond)
+                        condition = condition.as_dict()
+                        child_info['conditions'].append(condition)
 
                     children_info.append(child_info)
 
@@ -260,22 +250,12 @@ def view_child_details(request, child_id=None):
         child_details = ChildConditions.objects.filter(child=child)
 
         child_info = {}
-        child_info['child']={
-                             'id': child.pk,
-                             'name': child.name,
-                             'dob': child.date_of_birth
-                            }
+        child_info['child']= child.as_dict()
         child_info['conditions']=[]
 
         for condition in child_details:
-            cond = {
-                    'weight': condition.weight,
-                    'height': condition.height,
-                    'age': condition.age,
-                    'bmi': condition.body_mass_index,
-                    'doe': condition.date_of_entry
-                    }
-            child_info['conditions'].append(cond)
+            condition = condition.as_dict()
+            child_info['conditions'].append(condition)
 
         return render_to_response('middaymeal/child_track.html',
                                   {'child_info': child_info},
